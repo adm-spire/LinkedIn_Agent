@@ -1,0 +1,33 @@
+# Candidate profile used by the DeepSeek matching agent.
+
+education: "BTech Computer Science"
+experience_years: 1
+
+skills:
+  - Python
+  - FastAPI
+  - React
+  - SQL
+  - Docker
+  - Linux
+  - LangGraph
+  - LLM agents
+  - Playwright
+  - Selenium
+  - REST APIs
+
+target_roles:
+  - AI Engineer
+  - Software Engineer
+  - Backend Engineer
+  - Python Engineer
+  - AI/ML Engineer
+  - AI/LLM Engineer
+  - Agentic AI Engineer
+  - AI Automation Engineer
+
+preferred_locations:
+  - India
+  - Remote
+
+notes: "Early-career (~1 year) engineer focused on Python backend and LLM/agentic AI applications."

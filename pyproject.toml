@@ -1,0 +1,38 @@
+[project]
+name = "linkedin-job-hunter"
+version = "0.1.0"
+description = "Local autonomous LinkedIn job hunter agent with DeepSeek matching and email digests"
+requires-python = ">=3.11"
+dependencies = [
+    "playwright>=1.44",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "PyYAML>=6.0",
+    "openai>=1.30",
+    "beautifulsoup4>=4.12",
+    "mcp>=1.0",
+    "langchain-openai>=1.0",
+    "langchain-mcp-adapters>=0.3",
+    "deepagents>=0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-mock>=3.12",
+    "respx>=0.21",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app", "app.browser", "app.pipeline", "app.db", "app.llm", "app.notify", "app.utils"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -m 'not live'"
+markers = [
+    "live: tests that require live LinkedIn access (deselected by default)",
+]

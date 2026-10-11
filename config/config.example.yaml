@@ -1,0 +1,140 @@
+# Example non-secret configuration for the LinkedIn Job Hunter Agent.
+# Copy this file to config/config.yaml and edit it. Secrets (API keys,
+# SMTP passwords) live only in .env and must never be placed here.
+
+# ---------------------------------------------------------------------------
+# search: which jobs to look for. One LinkedIn search URL is built per
+# (query, location) pair, so 3 queries x 2 locations = 6 URLs.
+# ---------------------------------------------------------------------------
+search:
+  # Job titles / keywords to search for. At least one non-empty entry.
+  queries:
+    - "AI Engineer"
+    - "Machine Learning Engineer"
+    - "Software Engineer"
+
+  # Locations to search. Use an empty string ("") for a location-agnostic
+  # (worldwide) search. Defaults to [""] if omitted.
+  locations:
+    - "India"
+    - "Remote"
+
+  # Only include jobs posted within the last N days (0 = no recency filter).
+  posted_within_days: 1
+
+  # LinkedIn experience-level filters. Allowed values:
+  # internship, entry, associate, mid-senior, director, executive.
+  # Empty list = no experience filter. Multiple values are ORed.
+  experience_levels: []
+
+  # Workplace filters. Allowed values: remote, hybrid, onsite.
+  # Empty list = no workplace filter. Multiple values are ORed.
+  workplace: []
+
+  # Maximum result pages to fetch per (query, location). LinkedIn shows
+  # ~25 jobs per page, so this caps results at max_pages_per_query * 25.
+  max_pages_per_query: 2
+
+  # Drop any job whose company name contains one of these (case-insensitive).
+  # Applied in Python before matching, so excluded jobs never reach the LLM.
+  exclude_companies:
+    - "Some Staffing Agency"
+
+  # Drop any job whose title contains one of these (case-insensitive).
+  # Applied in Python before matching, so excluded jobs never reach the LLM.
+  exclude_title_keywords:
+    - "sales"
+    - "unpaid"
+
+# ---------------------------------------------------------------------------
+# filters: deterministic rule-based filtering applied before the LLM.
+# ---------------------------------------------------------------------------
+filters:
+  # Regular expressions; a job is rejected if its title matches any pattern.
+  reject_title_patterns:
+    - "\\b(senior|sr\\.?|staff|principal|lead|architect)\\b"
+    - "\\b(manager|director|vp|head of|chief)\\b"
+    - "\\b(intern|internship|fresher trainee)\\b"
+  # Seniority words rejected on word boundaries (in addition to patterns).
+  reject_seniority: ["senior", "staff", "principal", "lead", "manager", "director"]
+  # If non-empty, a job's location must contain at least one of these keywords.
+  allow_location_keywords: ["india", "remote", "bangalore", "bengaluru", "hyderabad", "pune", "mumbai", "delhi", "noida", "gurgaon"]
+
+# ---------------------------------------------------------------------------
+# matcher: DeepSeek scoring behaviour.
+# ---------------------------------------------------------------------------
+matcher:
+  # Turn LLM matching on/off (off = discovery only).
+  enabled: true
+  # Minimum score (0-100) for a job to be emailed.
+  min_score: 70
+  # Max jobs sent to the LLM per run (cost guard).
+  max_jobs_per_run: 40
+  # Retries per job on transient/malformed LLM responses.
+  max_retries: 2
+  # After this many failed LLM attempts a job stops being retried.
+  max_match_attempts: 3
+
+# ---------------------------------------------------------------------------
+# browser: Playwright behaviour.
+# ---------------------------------------------------------------------------
+browser:
+  # Run headless (true) or show the browser window (false).
+  headless: true
+  # Slow every Playwright action by this many ms (debugging aid).
+  slow_mo_ms: 0
+  # Navigation timeout in milliseconds.
+  navigation_timeout_ms: 45000
+  # How long to wait for a manual login before giving up (seconds).
+  manual_login_timeout_s: 900
+  # Random delay range between actions, in seconds (human pacing).
+  min_delay_s: 1.5
+  max_delay_s: 4.0
+
+# ---------------------------------------------------------------------------
+# mcp: scraping through the @playwright/mcp server + a bounded deepagents agent.
+# Requires Node 18+ and `npx`. It reuses the same persistent login profile
+# (runtime.browser_profile_dir). All budgets below are hard limits: the run
+# aborts cleanly when one is hit.
+# ---------------------------------------------------------------------------
+mcp:
+  command: "npx"               # MCP server launcher
+  args: ["@playwright/mcp@latest"]
+  headless: true
+  # Max agent iterations per search URL.
+  max_steps_per_query: 30
+  # Hard wall on model calls per search URL.
+  max_llm_calls_per_query: 30
+  # Hard wall on model calls for the whole run.
+  max_llm_calls_per_run: 200
+  # Hard wall on browser tool executions per search URL.
+  max_tool_calls_per_query: 40
+  # Hard wall on total DeepSeek tokens for the whole run.
+  max_total_tokens_per_run: 500000
+  # Hard wall on wall-clock time per search URL (seconds).
+  max_wall_clock_s_per_query: 300
+  # Random delay range between browser actions, in seconds.
+  min_delay_s: 1.5
+  max_delay_s: 4.0
+  # Snapshots are truncated to this many characters before reaching the model.
+  # The job list can be large, so keep this generous.
+  max_snapshot_chars: 60000
+
+# ---------------------------------------------------------------------------
+# runtime: paths and logging. Relative paths are resolved from the repo root.
+# ---------------------------------------------------------------------------
+runtime:
+  database_path: "data/jobs.db"
+  browser_profile_dir: "data/browser_profile"
+  log_dir: "logs"
+  log_level: "INFO"
+  lock_path: "data/.lock"
+
+# ---------------------------------------------------------------------------
+# email: digest delivery (SMTP credentials come from .env).
+# ---------------------------------------------------------------------------
+email:
+  # Prefix for the digest subject line.
+  subject_prefix: "[Job Hunter]"
+  # Maximum number of jobs included in a single digest.
+  max_jobs_in_digest: 50

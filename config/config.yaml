@@ -1,0 +1,66 @@
+# Non-secret runtime configuration. Secrets live in .env.
+
+search:
+  queries:
+    - "AI Engineer"
+    - "Machine Learning Engineer"
+    - "Software Engineer"
+    - "Backend Engineer"
+    - "Python Engineer"
+    - "AI Automation Engineer"
+  locations:
+    - "India"
+  posted_within_days: 1
+  experience_levels: []
+  workplace: []
+  max_pages_per_query: 2
+  exclude_companies: []
+  exclude_title_keywords: []
+
+filters:
+  reject_title_patterns:
+    - "\\b(senior|sr\\.?|staff|principal|lead|architect)\\b"
+    - "\\b(manager|director|vp|head of|chief)\\b"
+    - "\\b(intern|internship|fresher trainee)\\b"
+  reject_seniority: ["senior", "staff", "principal", "lead", "manager", "director"]
+  allow_location_keywords: ["india", "remote", "bangalore", "bengaluru", "hyderabad", "pune", "mumbai", "delhi", "noida", "gurgaon"]
+
+matcher:
+  enabled: true
+  min_score: 70
+  max_jobs_per_run: 40
+  max_retries: 2
+  max_match_attempts: 3
+
+browser:
+  headless: true
+  slow_mo_ms: 0
+  navigation_timeout_ms: 45000
+  manual_login_timeout_s: 900
+  min_delay_s: 1.5
+  max_delay_s: 4.0
+
+mcp:
+  command: "npx"
+  args: ["@playwright/mcp@latest"]
+  headless: true
+  max_steps_per_query: 30
+  max_llm_calls_per_query: 30
+  max_llm_calls_per_run: 200
+  max_tool_calls_per_query: 40
+  max_total_tokens_per_run: 500000
+  max_wall_clock_s_per_query: 300
+  min_delay_s: 1.5
+  max_delay_s: 4.0
+  max_snapshot_chars: 60000
+
+runtime:
+  database_path: "data/jobs.db"
+  browser_profile_dir: "data/browser_profile"
+  log_dir: "logs"
+  log_level: "INFO"
+  lock_path: "data/.lock"
+
+email:
+  subject_prefix: "[Job Hunter]"
+  max_jobs_in_digest: 50

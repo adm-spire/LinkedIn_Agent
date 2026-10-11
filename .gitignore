@@ -1,0 +1,28 @@
+# Secrets
+.env
+
+# Runtime state
+data/
+logs/
+
+# MCP scraper runtime artifacts (console logs + page snapshot dumps)
+.playwright-mcp/
+/*.yml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
